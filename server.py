@@ -33,8 +33,11 @@ while True:
     data = conn.recv(BUFFER_SIZE)
     if data:
         try:
+            #Data comes from the client in string format, this is then split and made into a list of floats
             data_list=[float(x) for x in data.split(',')]
         except ValueError:
+            #If Data sent by the client is not in the correct format then a error message is sent back
+            #This error message could be more informative and the validation checks could also be better if give more use cases
             conn.send('please input a interger, float or both datatypes seperated by a comma')
 
         else:
