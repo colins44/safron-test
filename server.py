@@ -13,22 +13,21 @@ store.execute("CREATE TABLE numbers "
 class Number(object):
     __storm_table__ ='numbers'
     id = Int(primary=True)
+    #Using floats instead of decimals as we do not know the level of accuracy needed
     value = Float()
 
 
 TCP_IP = ''
 TCP_PORT = 5005
-BUFFER_SIZE =20
+BUFFER_SIZE = 20 #We can set this to a larger size in the future if needed
 
 server = socket(AF_INET, SOCK_STREAM)
 server.bind((TCP_IP, TCP_PORT))
-server.listen(5) #we are doing one connection at a time
+server.listen(5) #Server can deal with 5 connections at one time
 
 conn, addr = server.accept()
 print 'Connections address', addr
 
-#once we are returning values from the in memory DB do away with the list data_store
-data_store = []
 
 while True:
     data = conn.recv(BUFFER_SIZE)
@@ -40,13 +39,19 @@ while True:
 
         else:
             for x in data_list:
-                data_store.append(x)
+                #store all the numbers sent by the client into the DB
                 number = Number()
                 number.value = x
                 store.add(number)
                 store.commit()
-            print data_store
-            value = reduce(lambda x ,y: x+y, data_store)/len(data_store)
+
+            result = store.find(Number)
+
+            #DB query to return a list of Number.values
+            sql_data_store = [number.value for number in result]
+
+            print 'list of Number.values within DB :',  sql_data_store
+            value = reduce(lambda x ,y: x+y, sql_data_store)/len(sql_data_store)
             conn.send(str(value))
 
 
