@@ -57,5 +57,9 @@ while True:
             value = reduce(lambda x ,y: x+y, sql_data_store)/len(sql_data_store)
             conn.send(str(value))
 
+    else:
+        #empty strings are assested as False in Python
+        conn.send('Please dont send me nothing')
+
 
 conn.close()
